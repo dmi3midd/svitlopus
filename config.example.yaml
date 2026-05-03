@@ -1,0 +1,9 @@
+http:
+  address: 0.0.0.0:2600
+  idleTimeout: 90s
+  readTimeout: 20s
+  writeTimeout: 30s
+database:
+  dbPath: ./storage/svitlopus.db
+log: 
+  logPath: ./storage/svitlopus.log
