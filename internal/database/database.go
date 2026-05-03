@@ -3,16 +3,19 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"strconv"
 	"strings"
 	"time"
 
 	"svitlopus/internal/config"
+	"svitlopus/migrations"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
 )
 
 var (
@@ -51,6 +54,15 @@ func New(cfg *config.Database) (DBService, error) {
 	db, err := sqlx.Open("sqlite3", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", OperationErrOpenDB, err)
+	}
+
+	goose.SetBaseFS(migrations.FS)
+
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		log.Fatal(err)
+	}
+	if err := goose.Up(db.DB, "."); err != nil {
+		log.Fatal(err)
 	}
 
 	return &dbService{
