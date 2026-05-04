@@ -7,3 +7,13 @@ database:
   dbPath: ./storage/svitlopus.db
 log: 
   logPath: ./storage/svitlopus.log
+docker:
+  # The API hash and API id are stored locally and are only needed to run the Telegram Local Bot API.
+  # https://hub.docker.com/r/aiogram/telegram-bot-api
+  apiHash: your_api_hash
+  apiId: your_api_id
+  image: aiogram/telegram-bot-api:latest
+  containerName: svitlopus-telegram-bot-api
+  port: 8090
+  stopAlways: false
+  volume: svitlopus-volume

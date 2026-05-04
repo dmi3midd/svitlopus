@@ -9,26 +9,38 @@ import (
 
 // Http represents the HTTP server configuration.
 type Http struct {
-	Address      string        `mapstructure:"address"`
-	IdleTimeout  time.Duration `mapstructure:"idleTimeout"`
-	ReadTimeout  time.Duration `mapstructure:"readTimeout"`
-	WriteTimeout time.Duration `mapstructure:"writeTimeout"`
+	Address      string        `yaml:"address"`
+	IdleTimeout  time.Duration `yaml:"idleTimeout"`
+	ReadTimeout  time.Duration `yaml:"readTimeout"`
+	WriteTimeout time.Duration `yaml:"writeTimeout"`
 }
 
 // Database represents the database configuration.
 type Database struct {
-	DbPath string `mapstructure:"dbPath"`
+	DbPath string `yaml:"dbPath"`
 }
 
 // Log
 type Log struct {
-	LogPath string `mapstructure:"logPath"`
+	LogPath string `yaml:"logPath"`
+}
+
+// Docker
+type Docker struct {
+	ApiHash       string `yaml:"apiHash"`
+	ApiId         string `yaml:"apiId"`
+	Image         string `yaml:"image"`
+	ContainerName string `yaml:"containerName"`
+	Port          int    `yaml:"port"`
+	Valume        string `yaml:"volume"`
+	StopAlways    bool   `yaml:"stopAlways"`
 }
 
 type Config struct {
-	Database Database `mapstructure:"database"`
-	Http     Http     `mapstructure:"http"`
-	Log      Log      `mapstructure:"log"`
+	Database Database `yaml:"database"`
+	Http     Http     `yaml:"http"`
+	Log      Log      `yaml:"log"`
+	Docker   Docker   `yaml:"docker"`
 }
 
 // LoadConfig loads the configuration from the config file config.yaml.
