@@ -15,5 +15,5 @@ docker:
   image: aiogram/telegram-bot-api:latest
   containerName: svitlopus-telegram-bot-api
   port: 8090
-  stopAlways: false
+  restartAlways: false
   volume: svitlopus-volume

@@ -33,7 +33,7 @@ type Docker struct {
 	ContainerName string `yaml:"containerName"`
 	Port          int    `yaml:"port"`
 	Valume        string `yaml:"volume"`
-	StopAlways    bool   `yaml:"stopAlways"`
+	RestartAlways bool   `yaml:"restartAlways"`
 }
 
 type Config struct {
