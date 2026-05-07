@@ -4,7 +4,7 @@ CREATE TABLE files (
     title       VARCHAR(48) NOT NULL,
     mime        TEXT NOT NULL,
     size        INTEGER NOT NULL,
-    parent_id   VARCHAR(20),
+    parent_id   VARCHAR(20) NOT NULL,
     file_id     TEXT NOT NULL,
     message_id  INTEGER NOT NULL,
     created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

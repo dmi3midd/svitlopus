@@ -22,6 +22,9 @@ type FolderRepository interface {
 	// GetByParentId returns a list of folders by their parent ID.
 	// It returns an empty slice if no folders are found with the given parent ID.
 	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]models.Folder, error)
+	// GetByTitleAndParentId returns a folder by its title and parent ID.
+	// It returns the ErrFolderNotFound error if the folder does not exist.
+	GetByTitleAndParentId(ctx context.Context, title, parentId string) (*models.Folder, error)
 	// Create adds a new folder to the database.
 	Create(ctx context.Context, folder *models.Folder) (*models.Folder, error)
 	// Update modifies an existing folder in the database.
@@ -74,6 +77,24 @@ func (r *folderRepository) GetByParentId(ctx context.Context, parentId string, l
 		return []models.Folder{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return folders, nil
+}
+
+func (r *folderRepository) GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*models.Folder, error) {
+	op := "FolderRepository.GetByTitleAndParentId"
+	query := `
+	SELECT id, title, parent_id, created_at, updated_at 
+	FROM folders 
+	WHERE title = $1 AND parent_id = $2
+	`
+	var folder models.Folder
+	err := r.db.GetContext(ctx, &folder, query, title, parentId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
+		}
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return &folder, nil
 }
 
 func (r *folderRepository) Create(ctx context.Context, folder *models.Folder) (*models.Folder, error) {
