@@ -71,7 +71,7 @@ func (r *folderRepository) GetByParentId(ctx context.Context, parentId string, l
 	var folders []models.Folder
 	err := r.db.SelectContext(ctx, &folders, query, parentId, limit, offset)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return []models.Folder{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return folders, nil
 }

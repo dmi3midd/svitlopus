@@ -71,7 +71,7 @@ func (r *fileRepository) GetByParentId(ctx context.Context, parentId string, lim
 	var files []models.File
 	err := r.db.SelectContext(ctx, &files, query, parentId, limit, offset)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return []models.File{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return files, nil
 }
