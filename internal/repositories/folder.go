@@ -113,7 +113,7 @@ func (r *folderRepository) Update(ctx context.Context, folder *models.Folder) (*
 	op := "FolderRepository.Update"
 	query := `
 	UPDATE folders 
-	SET title = :title, parent_id = :parent_id, updated_at = :updated_at, created_at = :created_at
+	SET title = :title, parent_id = :parent_id, updated_at = :updated_at
 	WHERE id = :id
 	`
 	result, err := r.db.NamedExecContext(ctx, query, folder)

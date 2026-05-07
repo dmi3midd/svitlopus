@@ -9,7 +9,7 @@ type File struct {
 	Size      int       `json:"size" db:"size"`
 	ParentId  string    `json:"parentId" db:"parent_id"`
 	FileId    string    `json:"fileId" db:"file_id"`
-	MessageId int       `json:"MessageId" db:"message_id"`
+	MessageId int       `json:"messageId" db:"message_id"`
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 }
