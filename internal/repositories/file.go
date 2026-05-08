@@ -22,6 +22,9 @@ type FileRepository interface {
 	// GetByParentId returns a list of files by their parent ID.
 	// It returns an empty slice if no files are found with the given parent ID.
 	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]models.File, error)
+	// GetByTitleAndParentId returns a file by its title and parent ID.
+	// It returns the ErrFileNotFound error if the file does not exist.
+	GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*models.File, error)
 	// Create adds a new file to the database.
 	Create(ctx context.Context, file *models.File) (*models.File, error)
 	// Update modifies an existing file in the database.
@@ -74,6 +77,24 @@ func (r *fileRepository) GetByParentId(ctx context.Context, parentId string, lim
 		return []models.File{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return files, nil
+}
+
+func (r *fileRepository) GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*models.File, error) {
+	op := "FileRepository.GetByTitleAndParentId"
+	query := `
+	SELECT id, title, mime, size, parent_id, file_id, message_id, created_at, updated_at 
+	FROM files 
+	WHERE title = $1 AND parent_id = $2
+	`
+	var file models.File
+	err := r.db.GetContext(ctx, &file, query, title, parentId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, ErrFileNotFound)
+		}
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return &file, nil
 }
 
 func (r *fileRepository) Create(ctx context.Context, file *models.File) (*models.File, error) {
