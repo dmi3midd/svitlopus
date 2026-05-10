@@ -25,14 +25,16 @@ type FolderService interface {
 	// Returns ErrFolderNotFound if no folder is found.
 	GetSubfolders(ctx context.Context, folderId string, limit, offset int) ([]models.Folder, error)
 	// CreateFolder creates and returns a new folder.
+	// Returns ErrFolderNotFound if parent folder is not found.
 	// Returns ErrFolderAlreadyExist if a folder with the same title already exists in the current directory.
 	CreateFolder(ctx context.Context, title, parentId string) (*models.Folder, error)
 	// RenameFolder renames folder and returns the modified folder.
-	// Returns ErrFolderNotFound if no folder is found.
+	// Returns ErrFolderNotFound if no folder is not found.
 	// Returns ErrFolderAlreadyExist if a folder with the same title already exists in the current directory.
 	RenameFolder(ctx context.Context, id, newTitle string) (*models.Folder, error)
 	// MoveFolder moves folder by changing it's parentId.
-	// Returns ErrFolderNotFound if no folder is found.
+	// Returns ErrFolderNotFound if no folder is not found.
+	// Returns ErrFolderAlreadyExist if a folder with the same title already exists in the current directory.
 	MoveFolder(ctx context.Context, id, newParentId string) (*models.Folder, error)
 	// DeleteFolder removes folder.
 	DeleteFolder(ctx context.Context, id string) error
