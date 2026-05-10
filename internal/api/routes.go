@@ -3,10 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	hfolder "svitlopus/internal/handlers/folder"
-	"svitlopus/internal/repositories"
-	"svitlopus/internal/routers"
-	"svitlopus/internal/services"
+	"svitlopus/internal/folder"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,10 +11,10 @@ import (
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	folderRepo := repositories.NewFolderRepo(s.db.GetDB())
-	folderService := services.NewFolderService(folderRepo)
-	folderHandler := hfolder.NewFolderHandler(folderService)
-	folderRouter := routers.NewFolderRouter(folderHandler)
+	folderRepo := folder.NewFolderRepo(s.db.GetDB())
+	folderService := folder.NewFolderService(folderRepo)
+	folderHandler := folder.NewFolderHandler(folderService)
+	folderRouter := folder.NewFolderRouter(folderHandler)
 
 	mainRouter := chi.NewRouter()
 

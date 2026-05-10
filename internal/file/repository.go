@@ -1,11 +1,10 @@
-package repositories
+package file
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"svitlopus/internal/models"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -18,18 +17,18 @@ var (
 type FileRepository interface {
 	// GetById returns a file by its ID.
 	// It returns the ErrFileNotFound error if the file does not exist.
-	GetById(ctx context.Context, id string) (*models.File, error)
+	GetById(ctx context.Context, id string) (*File, error)
 	// GetByParentId returns a list of files by their parent ID.
 	// It returns an empty slice if no files are found with the given parent ID.
-	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]models.File, error)
+	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]File, error)
 	// GetByTitleAndParentId returns a file by its title and parent ID.
 	// It returns the ErrFileNotFound error if the file does not exist.
-	GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*models.File, error)
+	GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*File, error)
 	// Create adds a new file to the database.
-	Create(ctx context.Context, file *models.File) (*models.File, error)
+	Create(ctx context.Context, file *File) (*File, error)
 	// Update modifies an existing file in the database.
 	// It returns the ErrFileNotFound error if the file does not exist.
-	Update(ctx context.Context, file *models.File) (*models.File, error)
+	Update(ctx context.Context, file *File) (*File, error)
 	// Delete removes a file from the database by its ID.
 	Delete(ctx context.Context, id string) error
 }
@@ -44,14 +43,14 @@ func NewFileRepo(db *sqlx.DB) FileRepository {
 	}
 }
 
-func (r *fileRepository) GetById(ctx context.Context, id string) (*models.File, error) {
+func (r *fileRepository) GetById(ctx context.Context, id string) (*File, error) {
 	op := "FileRepository.GetById"
 	query := `
 	SELECT id, title, mime, size, parent_id, file_id, message_id, created_at, updated_at 
 	FROM files 
 	WHERE id = $1
 	`
-	var file models.File
+	var file File
 	err := r.db.GetContext(ctx, &file, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -62,7 +61,7 @@ func (r *fileRepository) GetById(ctx context.Context, id string) (*models.File, 
 	return &file, nil
 }
 
-func (r *fileRepository) GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]models.File, error) {
+func (r *fileRepository) GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]File, error) {
 	op := "FileRepository.GetByParentId"
 	query := `
 	SELECT id, title, mime, size, parent_id, file_id, message_id, created_at, updated_at 
@@ -71,22 +70,22 @@ func (r *fileRepository) GetByParentId(ctx context.Context, parentId string, lim
 	ORDER BY created_at DESC
 	LIMIT $2 OFFSET $3
 	`
-	var files []models.File
+	var files []File
 	err := r.db.SelectContext(ctx, &files, query, parentId, limit, offset)
 	if err != nil {
-		return []models.File{}, fmt.Errorf("%s: %w", op, err)
+		return []File{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return files, nil
 }
 
-func (r *fileRepository) GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*models.File, error) {
+func (r *fileRepository) GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*File, error) {
 	op := "FileRepository.GetByTitleAndParentId"
 	query := `
 	SELECT id, title, mime, size, parent_id, file_id, message_id, created_at, updated_at 
 	FROM files 
 	WHERE title = $1 AND parent_id = $2
 	`
-	var file models.File
+	var file File
 	err := r.db.GetContext(ctx, &file, query, title, parentId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -97,7 +96,7 @@ func (r *fileRepository) GetByTitleAndParentId(ctx context.Context, title string
 	return &file, nil
 }
 
-func (r *fileRepository) Create(ctx context.Context, file *models.File) (*models.File, error) {
+func (r *fileRepository) Create(ctx context.Context, file *File) (*File, error) {
 	op := "FileRepository.Create"
 	query := `
 	INSERT INTO files (id, title, mime, size, parent_id, file_id, message_id, created_at, updated_at) 
@@ -110,7 +109,7 @@ func (r *fileRepository) Create(ctx context.Context, file *models.File) (*models
 	return file, nil
 }
 
-func (r *fileRepository) Update(ctx context.Context, file *models.File) (*models.File, error) {
+func (r *fileRepository) Update(ctx context.Context, file *File) (*File, error) {
 	op := "FileRepository.Update"
 	query := `
 	UPDATE files 

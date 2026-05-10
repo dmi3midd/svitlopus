@@ -1,11 +1,10 @@
-package repositories
+package worker
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"svitlopus/internal/models"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -17,12 +16,12 @@ var (
 type WorkerRepository interface {
 	// GetWorkerById returns a worker by its ID.
 	// It returns the ErrWorkerNotFound error if the worker does not exist.
-	GetWorkerById(context context.Context, id string) (*models.Worker, error)
+	GetWorkerById(context context.Context, id string) (*Worker, error)
 	// GetAllWorkers returns a list of all workers.
 	// It returns an empty slice if no workers are found.
-	GetAllWorkers(context context.Context) ([]models.Worker, error)
+	GetAllWorkers(context context.Context) ([]Worker, error)
 	// CreateWorker adds a new worker to the database.
-	CreateWorker(context context.Context, worker *models.Worker) (*models.Worker, error)
+	CreateWorker(context context.Context, worker *Worker) (*Worker, error)
 	// DeleteWorker removes a worker from the database by its ID.
 	DeleteWorker(context context.Context, id string) error
 }
@@ -35,10 +34,10 @@ func NewWorkerRepository(db *sqlx.DB) WorkerRepository {
 	return &workerRepository{db: db}
 }
 
-func (w *workerRepository) GetWorkerById(ctx context.Context, id string) (*models.Worker, error) {
+func (w *workerRepository) GetWorkerById(ctx context.Context, id string) (*Worker, error) {
 	op := "WorkerRepository.GetById"
 
-	var worker models.Worker
+	var worker Worker
 	query := `
 	SELECT id, username, bot_token, is_active, chat_id, created_at
 	FROM workers
@@ -54,22 +53,22 @@ func (w *workerRepository) GetWorkerById(ctx context.Context, id string) (*model
 	return &worker, nil
 }
 
-func (w *workerRepository) GetAllWorkers(ctx context.Context) ([]models.Worker, error) {
+func (w *workerRepository) GetAllWorkers(ctx context.Context) ([]Worker, error) {
 	op := "WorkerRepository.GetAllWorkers"
 
-	var workers []models.Worker
+	var workers []Worker
 	query := `
 	SELECT id, username, bot_token, is_active, chat_id, created_at
 	FROM workers
 	`
 	err := w.db.SelectContext(ctx, &workers, query)
 	if err != nil {
-		return []models.Worker{}, fmt.Errorf("%s: %w", op, err)
+		return []Worker{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return workers, nil
 }
 
-func (w *workerRepository) CreateWorker(ctx context.Context, worker *models.Worker) (*models.Worker, error) {
+func (w *workerRepository) CreateWorker(ctx context.Context, worker *Worker) (*Worker, error) {
 	op := "WorkerRepository.CreateWorker"
 	query := `
 	INSERT INTO workers (id, username, bot_token, is_active, chat_id, created_at) 

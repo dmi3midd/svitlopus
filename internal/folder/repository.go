@@ -1,35 +1,34 @@
-package repositories
+package folder
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"svitlopus/internal/models"
 
 	"github.com/jmoiron/sqlx"
 )
 
 var (
-	ErrFolderNotFound = errors.New("folder not found")
+	ErrRepoFolderNotFound = errors.New("folder not found")
 )
 
 // FolderRepository defines the interface for folder repository operations.
 type FolderRepository interface {
 	// GetById returns a folder by its ID.
-	// It returns the ErrFolderNotFound error if the folder does not exist.
-	GetById(ctx context.Context, id string) (*models.Folder, error)
+	// It returns the ErrRepoFolderNotFound error if the folder does not exist.
+	GetById(ctx context.Context, id string) (*Folder, error)
 	// GetByParentId returns a list of folders by their parent ID.
 	// It returns an empty slice if no folders are found with the given parent ID.
-	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]models.Folder, error)
+	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]Folder, error)
 	// GetByTitleAndParentId returns a folder by its title and parent ID.
-	// It returns the ErrFolderNotFound error if the folder does not exist.
-	GetByTitleAndParentId(ctx context.Context, title, parentId string) (*models.Folder, error)
+	// It returns the ErrRepoFolderNotFound error if the folder does not exist.
+	GetByTitleAndParentId(ctx context.Context, title, parentId string) (*Folder, error)
 	// Create adds a new folder to the database.
-	Create(ctx context.Context, folder *models.Folder) (*models.Folder, error)
+	Create(ctx context.Context, folder *Folder) (*Folder, error)
 	// Update modifies an existing folder in the database.
-	// It returns the ErrFolderNotFound error if the folder does not exist.
-	Update(ctx context.Context, folder *models.Folder) (*models.Folder, error)
+	// It returns the ErrRepoFolderNotFound error if the folder does not exist.
+	Update(ctx context.Context, folder *Folder) (*Folder, error)
 	// Delete removes a folder from the database by its ID.
 	Delete(ctx context.Context, id string) error
 }
@@ -44,25 +43,25 @@ func NewFolderRepo(db *sqlx.DB) FolderRepository {
 	}
 }
 
-func (r *folderRepository) GetById(ctx context.Context, id string) (*models.Folder, error) {
+func (r *folderRepository) GetById(ctx context.Context, id string) (*Folder, error) {
 	op := "FolderRepository.GetById"
 	query := `
 	SELECT id, title, parent_id, created_at, updated_at 
 	FROM folders 
 	WHERE id = $1
 	`
-	var folder models.Folder
+	var folder Folder
 	err := r.db.GetContext(ctx, &folder, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrRepoFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	return &folder, nil
 }
 
-func (r *folderRepository) GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]models.Folder, error) {
+func (r *folderRepository) GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]Folder, error) {
 	op := "FolderRepository.GetByParentId"
 	query := `
 	SELECT id, title, parent_id, created_at, updated_at 
@@ -71,33 +70,33 @@ func (r *folderRepository) GetByParentId(ctx context.Context, parentId string, l
 	ORDER BY created_at DESC
 	LIMIT $2 OFFSET $3
 	`
-	var folders []models.Folder
+	var folders []Folder
 	err := r.db.SelectContext(ctx, &folders, query, parentId, limit, offset)
 	if err != nil {
-		return []models.Folder{}, fmt.Errorf("%s: %w", op, err)
+		return []Folder{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return folders, nil
 }
 
-func (r *folderRepository) GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*models.Folder, error) {
+func (r *folderRepository) GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*Folder, error) {
 	op := "FolderRepository.GetByTitleAndParentId"
 	query := `
 	SELECT id, title, parent_id, created_at, updated_at 
 	FROM folders 
 	WHERE title = $1 AND parent_id = $2
 	`
-	var folder models.Folder
+	var folder Folder
 	err := r.db.GetContext(ctx, &folder, query, title, parentId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrRepoFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	return &folder, nil
 }
 
-func (r *folderRepository) Create(ctx context.Context, folder *models.Folder) (*models.Folder, error) {
+func (r *folderRepository) Create(ctx context.Context, folder *Folder) (*Folder, error) {
 	op := "FolderRepository.Create"
 	query := `
 	INSERT INTO folders (id, title, parent_id, created_at, updated_at) 
@@ -109,7 +108,7 @@ func (r *folderRepository) Create(ctx context.Context, folder *models.Folder) (*
 	return folder, nil
 }
 
-func (r *folderRepository) Update(ctx context.Context, folder *models.Folder) (*models.Folder, error) {
+func (r *folderRepository) Update(ctx context.Context, folder *Folder) (*Folder, error) {
 	op := "FolderRepository.Update"
 	query := `
 	UPDATE folders 
@@ -125,7 +124,7 @@ func (r *folderRepository) Update(ctx context.Context, folder *models.Folder) (*
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	if rowsAffected == 0 {
-		return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
+		return nil, fmt.Errorf("%s: %w", op, ErrRepoFolderNotFound)
 	}
 	return folder, nil
 }

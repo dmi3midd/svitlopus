@@ -1,11 +1,9 @@
-package services
+package folder
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"svitlopus/internal/models"
-	"svitlopus/internal/repositories"
 	"time"
 
 	"github.com/rs/xid"
@@ -20,42 +18,42 @@ var (
 type FolderService interface {
 	// GetFolder returns folder information.
 	// Returns ErrFolderNotFound if no folder is found.
-	GetFolder(ctx context.Context, folderId string) (*models.Folder, error)
+	GetFolder(ctx context.Context, folderId string) (*Folder, error)
 	// GetSubfolders returns subfolders with pagination.
 	// Returns ErrFolderNotFound if no folder is found.
-	GetSubfolders(ctx context.Context, folderId string, limit, offset int) ([]models.Folder, error)
+	GetSubfolders(ctx context.Context, folderId string, limit, offset int) ([]Folder, error)
 	// CreateFolder creates and returns a new folder.
 	// Returns ErrFolderNotFound if parent folder is not found.
 	// Returns ErrFolderAlreadyExist if a folder with the same title already exists in the current directory.
-	CreateFolder(ctx context.Context, title, parentId string) (*models.Folder, error)
+	CreateFolder(ctx context.Context, title, parentId string) (*Folder, error)
 	// RenameFolder renames folder and returns the modified folder.
 	// Returns ErrFolderNotFound if no folder is not found.
 	// Returns ErrFolderAlreadyExist if a folder with the same title already exists in the current directory.
-	RenameFolder(ctx context.Context, id, newTitle string) (*models.Folder, error)
+	RenameFolder(ctx context.Context, id, newTitle string) (*Folder, error)
 	// MoveFolder moves folder by changing it's parentId.
 	// Returns ErrFolderNotFound if no folder is not found.
 	// Returns ErrFolderAlreadyExist if a folder with the same title already exists in the current directory.
-	MoveFolder(ctx context.Context, id, newParentId string) (*models.Folder, error)
+	MoveFolder(ctx context.Context, id, newParentId string) (*Folder, error)
 	// DeleteFolder removes folder.
 	DeleteFolder(ctx context.Context, id string) error
 }
 
 type folderService struct {
-	folderRepo repositories.FolderRepository
+	folderRepo FolderRepository
 }
 
-func NewFolderService(folderRepo repositories.FolderRepository) FolderService {
+func NewFolderService(folderRepo FolderRepository) FolderService {
 	return &folderService{
 		folderRepo: folderRepo,
 	}
 }
 
-func (s *folderService) GetFolder(ctx context.Context, folderId string) (*models.Folder, error) {
+func (s *folderService) GetFolder(ctx context.Context, folderId string) (*Folder, error) {
 	op := "FolderService.GetFolder"
 
 	folder, err := s.folderRepo.GetById(ctx, folderId)
 	if err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
+		if errors.Is(err, ErrRepoFolderNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -64,32 +62,32 @@ func (s *folderService) GetFolder(ctx context.Context, folderId string) (*models
 	return folder, nil
 }
 
-func (s *folderService) GetSubfolders(ctx context.Context, folderId string, limit, offset int) ([]models.Folder, error) {
+func (s *folderService) GetSubfolders(ctx context.Context, folderId string, limit, offset int) ([]Folder, error) {
 	op := "FolderService.GetSubfolders"
 
 	if limit <= 0 || offset < 0 {
-		return []models.Folder{}, fmt.Errorf("%s: %w", op, ErrInvalidPagination)
+		return []Folder{}, fmt.Errorf("%s: %w", op, ErrInvalidPagination)
 	}
 
 	if _, err := s.folderRepo.GetById(ctx, folderId); err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
-			return []models.Folder{}, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
+		if errors.Is(err, ErrRepoFolderNotFound) {
+			return []Folder{}, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
-		return []models.Folder{}, fmt.Errorf("%s: %w", op, err)
+		return []Folder{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	folders, err := s.folderRepo.GetByParentId(ctx, folderId, limit, offset)
 	if err != nil {
-		return []models.Folder{}, fmt.Errorf("%s: %w", op, err)
+		return []Folder{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return folders, nil
 }
 
-func (s *folderService) CreateFolder(ctx context.Context, title, parentId string) (*models.Folder, error) {
+func (s *folderService) CreateFolder(ctx context.Context, title, parentId string) (*Folder, error) {
 	op := "FolderService.CreateFolder"
 
 	if _, err := s.folderRepo.GetById(ctx, parentId); err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
+		if errors.Is(err, ErrRepoFolderNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -97,11 +95,11 @@ func (s *folderService) CreateFolder(ctx context.Context, title, parentId string
 
 	if _, err := s.folderRepo.GetByTitleAndParentId(ctx, title, parentId); err == nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrFolderAlreadyExist)
-	} else if !errors.Is(err, repositories.ErrFolderNotFound) {
+	} else if !errors.Is(err, ErrRepoFolderNotFound) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	folder := models.Folder{
+	folder := Folder{
 		Id:        xid.New().String(),
 		Title:     title,
 		ParentId:  parentId,
@@ -126,11 +124,11 @@ func (s *folderService) DeleteFolder(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) (*models.Folder, error) {
+func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) (*Folder, error) {
 	op := "FolderService.MoveFolder"
 
 	if _, err := s.folderRepo.GetById(ctx, newParentId); err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
+		if errors.Is(err, ErrRepoFolderNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -138,7 +136,7 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 
 	folder, err := s.folderRepo.GetById(ctx, id)
 	if err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
+		if errors.Is(err, ErrRepoFolderNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -150,7 +148,7 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 
 	if _, err := s.folderRepo.GetByTitleAndParentId(ctx, folder.Title, newParentId); err == nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrFolderAlreadyExist)
-	} else if !errors.Is(err, repositories.ErrFolderNotFound) {
+	} else if !errors.Is(err, ErrRepoFolderNotFound) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -159,7 +157,7 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 
 	updatedFolder, err := s.folderRepo.Update(ctx, folder)
 	if err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
+		if errors.Is(err, ErrRepoFolderNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -167,12 +165,12 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 	return updatedFolder, nil
 }
 
-func (s *folderService) RenameFolder(ctx context.Context, id, newTitle string) (*models.Folder, error) {
+func (s *folderService) RenameFolder(ctx context.Context, id, newTitle string) (*Folder, error) {
 	op := "FolderService.RenameFolder"
 
 	folder, err := s.folderRepo.GetById(ctx, id)
 	if err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
+		if errors.Is(err, ErrRepoFolderNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -184,7 +182,7 @@ func (s *folderService) RenameFolder(ctx context.Context, id, newTitle string) (
 
 	if _, err := s.folderRepo.GetByTitleAndParentId(ctx, newTitle, folder.ParentId); err == nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrFolderAlreadyExist)
-	} else if !errors.Is(err, repositories.ErrFolderNotFound) {
+	} else if !errors.Is(err, ErrRepoFolderNotFound) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -193,7 +191,7 @@ func (s *folderService) RenameFolder(ctx context.Context, id, newTitle string) (
 
 	updatedFolder, err := s.folderRepo.Update(ctx, folder)
 	if err != nil {
-		if errors.Is(err, repositories.ErrFolderNotFound) {
+		if errors.Is(err, ErrRepoFolderNotFound) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)

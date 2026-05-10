@@ -1,13 +1,12 @@
-package routers
+package folder
 
 import (
 	errs "svitlopus/internal/errors"
-	hfolder "svitlopus/internal/handlers/folder"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func NewFolderRouter(handler *hfolder.FolderHandler) *chi.Mux {
+func NewFolderRouter(handler *FolderHandler) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Get("/folders/{id}", errs.ErrorHandler(handler.GetFolder))
