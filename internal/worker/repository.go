@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	ErrWorkerNotFound = errors.New("worker not found")
+	ErrRepoWorkerNotFound = errors.New("repository: worker not found")
 )
 
 type WorkerRepository interface {
 	// GetWorkerById returns a worker by its ID.
-	// It returns the ErrWorkerNotFound error if the worker does not exist.
+	// It returns the ErrRepoWorkerNotFound error if the worker does not exist.
 	GetWorkerById(context context.Context, id string) (*Worker, error)
 	// GetAllWorkers returns a list of all workers.
 	// It returns an empty slice if no workers are found.
@@ -46,7 +46,7 @@ func (w *workerRepository) GetWorkerById(ctx context.Context, id string) (*Worke
 	err := w.db.GetContext(ctx, &worker, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrWorkerNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrRepoWorkerNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
