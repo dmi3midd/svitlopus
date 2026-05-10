@@ -15,6 +15,7 @@ func (h *FolderHandler) CreateFolder(w http.ResponseWriter, r *http.Request) err
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return errs.NewInternalServerError(err)
 	}
+	defer r.Body.Close()
 
 	ctx := r.Context()
 	folder, err := h.folderService.CreateFolder(ctx, req.Title, req.ParentId)
@@ -52,6 +53,7 @@ func (h *FolderHandler) RenameFolder(w http.ResponseWriter, r *http.Request) err
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return errs.NewInternalServerError(err)
 	}
+	defer r.Body.Close()
 
 	folderId := chi.URLParam(r, "id")
 	if folderId == "" {
@@ -94,6 +96,7 @@ func (h *FolderHandler) MoveFolder(w http.ResponseWriter, r *http.Request) error
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return errs.NewInternalServerError(err)
 	}
+	defer r.Body.Close()
 
 	folderId := chi.URLParam(r, "id")
 	if folderId == "" {
