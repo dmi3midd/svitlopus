@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ErrFolderAlreadyExist = errors.New("folder already exist in current directory")
-	ErrFolderNotFound     = errors.New("folder not found")
-	ErrInvalidPagination  = errors.New("limit must be > 0 and offset must be >= 0")
+	ErrFolderAlreadyExist = errors.New("service: folder already exist in current directory")
+	ErrFolderNotFound     = errors.New("service: folder not found")
+	ErrInvalidPagination  = errors.New("service: limit must be > 0 , < 30 and offset must be >= 0")
 )
 
 type FolderService interface {
@@ -67,6 +67,10 @@ func (s *folderService) GetSubfolders(ctx context.Context, folderId string, limi
 
 	if limit <= 0 || offset < 0 {
 		return []Folder{}, fmt.Errorf("%s: %w", op, ErrInvalidPagination)
+	}
+
+	if limit > 31 {
+
 	}
 
 	if _, err := s.folderRepo.GetById(ctx, folderId); err != nil {

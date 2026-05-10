@@ -3,6 +3,7 @@ package folder
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	errs "svitlopus/internal/errors"
 
@@ -54,7 +55,7 @@ func (h *FolderHandler) RenameFolder(w http.ResponseWriter, r *http.Request) err
 
 	folderId := chi.URLParam(r, "id")
 	if folderId == "" {
-		return errs.NewBadRequestError(ErrEmptyFolderID, "Folder id is required")
+		return errs.NewBadRequestError(fmt.Errorf("folder id is required"), "Folder id is required")
 	}
 
 	ctx := r.Context()
@@ -96,7 +97,7 @@ func (h *FolderHandler) MoveFolder(w http.ResponseWriter, r *http.Request) error
 
 	folderId := chi.URLParam(r, "id")
 	if folderId == "" {
-		return errs.NewBadRequestError(ErrEmptyFolderID, "Folder id is required")
+		return errs.NewBadRequestError(fmt.Errorf("folder id is required"), "Folder id is required")
 	}
 
 	ctx := r.Context()
@@ -132,7 +133,7 @@ func (h *FolderHandler) MoveFolder(w http.ResponseWriter, r *http.Request) error
 func (h *FolderHandler) DeleteFolder(w http.ResponseWriter, r *http.Request) error {
 	folderId := chi.URLParam(r, "id")
 	if folderId == "" {
-		return errs.NewBadRequestError(ErrEmptyFolderID, "Folder id is required")
+		return errs.NewBadRequestError(fmt.Errorf("folder id is required"), "Folder id is required")
 	}
 
 	ctx := r.Context()

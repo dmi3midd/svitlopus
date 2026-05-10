@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrRepoFolderNotFound = errors.New("folder not found")
+	ErrRepoFolderNotFound = errors.New("repository: folder not found")
 )
 
 // FolderRepository defines the interface for folder repository operations.

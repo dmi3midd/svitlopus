@@ -3,6 +3,7 @@ package folder
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	errs "svitlopus/internal/errors"
@@ -13,7 +14,7 @@ import (
 func (h *FolderHandler) GetFolder(w http.ResponseWriter, r *http.Request) error {
 	folderId := chi.URLParam(r, "id")
 	if folderId == "" {
-		return errs.NewBadRequestError(ErrEmptyFolderID, "Folder id is required")
+		return errs.NewBadRequestError(fmt.Errorf("folder id is required"), "Folder id is required")
 	}
 
 	ctx := r.Context()
@@ -44,7 +45,7 @@ func (h *FolderHandler) GetFolder(w http.ResponseWriter, r *http.Request) error 
 func (h *FolderHandler) GetSubfolders(w http.ResponseWriter, r *http.Request) error {
 	folderId := chi.URLParam(r, "id")
 	if folderId == "" {
-		return errs.NewBadRequestError(ErrEmptyFolderID, "Folder id is required")
+		return errs.NewBadRequestError(fmt.Errorf("folder id is required"), "Folder id is required")
 	}
 
 	limit := 20

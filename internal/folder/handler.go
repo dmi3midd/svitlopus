@@ -1,14 +1,5 @@
 package folder
 
-import (
-	"errors"
-)
-
-var (
-	ErrEmptyFolderID = errors.New("folder id is required")
-	// ErrFolderNotFound = errors.New("folder not found")
-)
-
 type FolderHandler struct {
 	folderService FolderService
 }
