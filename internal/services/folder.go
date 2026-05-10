@@ -42,13 +42,11 @@ type FolderService interface {
 
 type folderService struct {
 	folderRepo repositories.FolderRepository
-	fileRepo   repositories.FileRepository
 }
 
-func NewFolderService(folderRepo repositories.FolderRepository, fileRepo repositories.FileRepository) FolderService {
+func NewFolderService(folderRepo repositories.FolderRepository) FolderService {
 	return &folderService{
 		folderRepo: folderRepo,
-		fileRepo:   fileRepo,
 	}
 }
 
