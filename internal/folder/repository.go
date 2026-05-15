@@ -10,24 +10,24 @@ import (
 )
 
 var (
-	ErrRepoFolderNotFound = errors.New("repository: folder not found")
+	ErrNoFolder = errors.New("folder not found in the repository")
 )
 
 // FolderRepository defines the interface for folder repository operations.
 type FolderRepository interface {
 	// GetById returns a folder by its ID.
-	// It returns the ErrRepoFolderNotFound error if the folder does not exist.
+	// It returns the ErrNoFolder error if the folder does not exist.
 	GetById(ctx context.Context, id string) (*Folder, error)
 	// GetByParentId returns a list of folders by their parent ID.
 	// It returns an empty slice if no folders are found with the given parent ID.
 	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]Folder, error)
 	// GetByTitleAndParentId returns a folder by its title and parent ID.
-	// It returns the ErrRepoFolderNotFound error if the folder does not exist.
+	// It returns the ErrNoFolder error if the folder does not exist.
 	GetByTitleAndParentId(ctx context.Context, title, parentId string) (*Folder, error)
 	// Create adds a new folder to the database.
 	Create(ctx context.Context, folder *Folder) (*Folder, error)
 	// Update modifies an existing folder in the database.
-	// It returns the ErrRepoFolderNotFound error if the folder does not exist.
+	// It returns the ErrNoFolder error if the folder does not exist.
 	Update(ctx context.Context, folder *Folder) (*Folder, error)
 	// Delete removes a folder from the database by its ID.
 	Delete(ctx context.Context, id string) error
@@ -54,7 +54,7 @@ func (r *folderRepository) GetById(ctx context.Context, id string) (*Folder, err
 	err := r.db.GetContext(ctx, &folder, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrRepoFolderNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrNoFolder)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -89,7 +89,7 @@ func (r *folderRepository) GetByTitleAndParentId(ctx context.Context, title stri
 	err := r.db.GetContext(ctx, &folder, query, title, parentId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrRepoFolderNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrNoFolder)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -124,7 +124,7 @@ func (r *folderRepository) Update(ctx context.Context, folder *Folder) (*Folder,
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	if rowsAffected == 0 {
-		return nil, fmt.Errorf("%s: %w", op, ErrRepoFolderNotFound)
+		return nil, fmt.Errorf("%s: %w", op, ErrNoFolder)
 	}
 	return folder, nil
 }

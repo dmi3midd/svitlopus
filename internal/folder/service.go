@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ErrFolderAlreadyExist = errors.New("service: folder already exist in current directory")
-	ErrFolderNotFound     = errors.New("service: folder not found")
-	ErrInvalidPagination  = errors.New("service: limit must be > 0 , < 30 and offset must be >= 0")
+	ErrFolderAlreadyExist = errors.New("folder already exist in current directory")
+	ErrFolderNotFound     = errors.New("folder not found")
+	ErrInvalidPagination  = errors.New("limit must be > 0 , < 30 and offset must be >= 0")
 )
 
 type FolderService interface {
@@ -53,7 +53,7 @@ func (s *folderService) GetFolder(ctx context.Context, folderId string) (*Folder
 
 	folder, err := s.folderRepo.GetById(ctx, folderId)
 	if err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -74,7 +74,7 @@ func (s *folderService) GetSubfolders(ctx context.Context, folderId string, limi
 	}
 
 	if _, err := s.folderRepo.GetById(ctx, folderId); err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return []Folder{}, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return []Folder{}, fmt.Errorf("%s: %w", op, err)
@@ -91,7 +91,7 @@ func (s *folderService) CreateFolder(ctx context.Context, title, parentId string
 	op := "FolderService.CreateFolder"
 
 	if _, err := s.folderRepo.GetById(ctx, parentId); err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -99,7 +99,7 @@ func (s *folderService) CreateFolder(ctx context.Context, title, parentId string
 
 	if _, err := s.folderRepo.GetByTitleAndParentId(ctx, title, parentId); err == nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrFolderAlreadyExist)
-	} else if !errors.Is(err, ErrRepoFolderNotFound) {
+	} else if !errors.Is(err, ErrNoFolder) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -132,7 +132,7 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 	op := "FolderService.MoveFolder"
 
 	if _, err := s.folderRepo.GetById(ctx, newParentId); err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -140,7 +140,7 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 
 	folder, err := s.folderRepo.GetById(ctx, id)
 	if err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -152,7 +152,7 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 
 	if _, err := s.folderRepo.GetByTitleAndParentId(ctx, folder.Title, newParentId); err == nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrFolderAlreadyExist)
-	} else if !errors.Is(err, ErrRepoFolderNotFound) {
+	} else if !errors.Is(err, ErrNoFolder) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -161,7 +161,7 @@ func (s *folderService) MoveFolder(ctx context.Context, id, newParentId string) 
 
 	updatedFolder, err := s.folderRepo.Update(ctx, folder)
 	if err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -174,7 +174,7 @@ func (s *folderService) RenameFolder(ctx context.Context, id, newTitle string) (
 
 	folder, err := s.folderRepo.GetById(ctx, id)
 	if err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -186,7 +186,7 @@ func (s *folderService) RenameFolder(ctx context.Context, id, newTitle string) (
 
 	if _, err := s.folderRepo.GetByTitleAndParentId(ctx, newTitle, folder.ParentId); err == nil {
 		return nil, fmt.Errorf("%s: %w", op, ErrFolderAlreadyExist)
-	} else if !errors.Is(err, ErrRepoFolderNotFound) {
+	} else if !errors.Is(err, ErrNoFolder) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -195,7 +195,7 @@ func (s *folderService) RenameFolder(ctx context.Context, id, newTitle string) (
 
 	updatedFolder, err := s.folderRepo.Update(ctx, folder)
 	if err != nil {
-		if errors.Is(err, ErrRepoFolderNotFound) {
+		if errors.Is(err, ErrNoFolder) {
 			return nil, fmt.Errorf("%s: %w", op, ErrFolderNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)

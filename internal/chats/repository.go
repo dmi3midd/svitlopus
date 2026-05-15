@@ -10,15 +10,15 @@ import (
 )
 
 var (
-	ErrRepoChatNotFound = errors.New("repository: chat not found")
+	ErrNoChat = errors.New("chat not found in the repository")
 )
 
 type ChatRepository interface {
 	// GetById returns a chat by its Id.
-	// It returns the ErrRepoChatNotFound error if the chat does not exist.
+	// It returns the ErrNoChat error if the chat does not exist.
 	GetById(ctx context.Context, id string) (*Chat, error)
 	// GetByChatId returns a chat by its Id.
-	// It returns the ErrRepoChatNotFound error if the chat does not exist.
+	// It returns the ErrNoChat error if the chat does not exist.
 	GetByChatId(ctx context.Context, chatId int) (*Chat, error)
 	// GetAll returns a list of chats.
 	// It returns an empty slice if no chats are found.
@@ -49,7 +49,7 @@ func (r *chatRepository) GetById(ctx context.Context, id string) (*Chat, error) 
 	var chat Chat
 	if err := r.db.GetContext(ctx, &chat, query, id); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrRepoChatNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrNoChat)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -66,7 +66,7 @@ func (r *chatRepository) GetByChatId(ctx context.Context, chatId int) (*Chat, er
 	var chat Chat
 	if err := r.db.GetContext(ctx, &chat, query, chatId); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrRepoChatNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrNoChat)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

@@ -10,24 +10,24 @@ import (
 )
 
 var (
-	ErrRepoFileNotFound = errors.New("repository: file not found")
+	ErrNoFile = errors.New("file not found in the repository")
 )
 
 // FileRepository defines the interface for file repository operations.
 type FileRepository interface {
 	// GetById returns a file by its ID.
-	// It returns the ErrRepoFileNotFound error if the file does not exist.
+	// It returns the ErrNoFile error if the file does not exist.
 	GetById(ctx context.Context, id string) (*File, error)
 	// GetByParentId returns a list of files by their parent ID.
 	// It returns an empty slice if no files are found with the given parent ID.
 	GetByParentId(ctx context.Context, parentId string, limit int, offset int) ([]File, error)
 	// GetByTitleAndParentId returns a file by its title and parent ID.
-	// It returns the ErrRepoFileNotFound error if the file does not exist.
+	// It returns the ErrNoFile error if the file does not exist.
 	GetByTitleAndParentId(ctx context.Context, title string, parentId string) (*File, error)
 	// Create adds a new file to the database.
 	Create(ctx context.Context, file *File) (*File, error)
 	// Update modifies an existing file in the database.
-	// It returns the ErrRepoFileNotFound error if the file does not exist.
+	// It returns the ErrNoFile error if the file does not exist.
 	Update(ctx context.Context, file *File) (*File, error)
 	// Delete removes a file from the database by its ID.
 	Delete(ctx context.Context, id string) error
@@ -54,7 +54,7 @@ func (r *fileRepository) GetById(ctx context.Context, id string) (*File, error) 
 	err := r.db.GetContext(ctx, &file, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrRepoFileNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrNoFile)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -89,7 +89,7 @@ func (r *fileRepository) GetByTitleAndParentId(ctx context.Context, title string
 	err := r.db.GetContext(ctx, &file, query, title, parentId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrRepoFileNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrNoFile)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -125,7 +125,7 @@ func (r *fileRepository) Update(ctx context.Context, file *File) (*File, error) 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	if rowsAffected == 0 {
-		return nil, fmt.Errorf("%s: %w", op, ErrRepoFileNotFound)
+		return nil, fmt.Errorf("%s: %w", op, ErrNoFile)
 	}
 	return file, nil
 }
