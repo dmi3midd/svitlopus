@@ -17,3 +17,5 @@ docker:
   port: 8090
   restartAlways: false
   volume: svitlopus-volume
+bot:
+  token: your_bot_token

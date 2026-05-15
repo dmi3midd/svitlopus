@@ -36,11 +36,17 @@ type Docker struct {
 	RestartAlways bool   `yaml:"restartAlways"`
 }
 
+// Bot
+type Bot struct {
+	Token string `yaml:"token"`
+}
+
 type Config struct {
 	Database Database `yaml:"database"`
 	Http     Http     `yaml:"http"`
 	Log      Log      `yaml:"log"`
 	Docker   Docker   `yaml:"docker"`
+	Bot      Bot      `yaml:"bot"`
 }
 
 // LoadConfig loads the configuration from the config file config.yaml.
