@@ -3,7 +3,6 @@ package dockerutil
 import (
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"svitlopus/internal/config"
 )
@@ -18,11 +17,19 @@ type DockerUtil interface {
 }
 
 type dockerUtil struct {
-	cfg config.Docker
+	cfg *config.Docker
+}
+
+func NewDockerUtil(cfg *config.Docker) DockerUtil {
+	return &dockerUtil{
+		cfg: cfg,
+	}
 }
 
 func (u *dockerUtil) IsDockerInstalled() bool {
 	cmd := exec.Command("docker", "-v")
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return false
 	}
@@ -32,6 +39,8 @@ func (u *dockerUtil) IsDockerInstalled() bool {
 func (u *dockerUtil) IsImagePulled() bool {
 	image := u.cfg.Image
 	cmd := exec.Command("docker", "image", "inspect", image)
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return false
 	}
@@ -41,8 +50,8 @@ func (u *dockerUtil) IsImagePulled() bool {
 func (u *dockerUtil) PullImage() {
 	image := u.cfg.Image
 	cmd := exec.Command("docker", "pull", image)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		log.Printf("failed to pull image: %v\n", err)
 		return
@@ -52,13 +61,15 @@ func (u *dockerUtil) PullImage() {
 func (u *dockerUtil) DoesContainerExist() bool {
 	containerName := u.cfg.ContainerName
 	cmd := exec.Command("docker", "inspect", containerName)
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 	return cmd.Run() == nil
 }
 
 func (u *dockerUtil) RunDockerContainer() error {
 	port := u.cfg.Port
 	containerName := u.cfg.ContainerName
-	volume := u.cfg.Valume
+	volume := u.cfg.Volume
 	apiId := u.cfg.ApiId
 	apiHash := u.cfg.ApiHash
 	image := u.cfg.Image
@@ -79,6 +90,8 @@ func (u *dockerUtil) RunDockerContainer() error {
 	}
 
 	cmd := exec.Command("docker", args...)
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to run container: %v", err)
 	}

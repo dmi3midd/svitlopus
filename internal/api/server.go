@@ -9,11 +9,11 @@ import (
 )
 
 type Server struct {
-	cfg *config.Http
+	cfg *config.Config
 	db  database.DBService
 }
 
-func NewServer(cfg *config.Http, db database.DBService) *http.Server {
+func NewServer(cfg *config.Config, db database.DBService) *http.Server {
 	s := &Server{
 		cfg: cfg,
 		db:  db,
@@ -21,10 +21,10 @@ func NewServer(cfg *config.Http, db database.DBService) *http.Server {
 
 	router := s.RegisterRoutes()
 	return &http.Server{
-		Addr:         cfg.Address,
+		Addr:         cfg.Http.Address,
 		Handler:      router,
-		IdleTimeout:  cfg.IdleTimeout,
-		ReadTimeout:  cfg.ReadTimeout,
-		WriteTimeout: cfg.WriteTimeout,
+		IdleTimeout:  cfg.Http.IdleTimeout,
+		ReadTimeout:  cfg.Http.ReadTimeout,
+		WriteTimeout: cfg.Http.WriteTimeout,
 	}
 }

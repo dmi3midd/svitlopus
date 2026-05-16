@@ -32,7 +32,7 @@ type Docker struct {
 	Image         string `yaml:"image"`
 	ContainerName string `yaml:"containerName"`
 	Port          int    `yaml:"port"`
-	Valume        string `yaml:"volume"`
+	Volume        string `yaml:"volume"`
 	RestartAlways bool   `yaml:"restartAlways"`
 }
 

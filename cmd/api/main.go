@@ -12,6 +12,7 @@ import (
 	"svitlopus/internal/config"
 	"svitlopus/internal/database"
 	logger "svitlopus/internal/logger"
+	dockerutil "svitlopus/internal/utils/docker_util"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
@@ -56,7 +57,12 @@ func main() {
 	}
 	defer db.Close()
 
-	server := api.NewServer(&cfg.Http, db)
+	dockeru := dockerutil.NewDockerUtil(&cfg.Docker)
+	if err := dockeru.RunDockerPipeline(); err != nil {
+		slog.Error("failed to run docker container", slog.String("error", err.Error()))
+	}
+
+	server := api.NewServer(cfg, db)
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
