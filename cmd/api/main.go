@@ -57,7 +57,7 @@ func main() {
 	}
 	defer db.Close()
 
-	dockeru := dockeradapter.NewDockerUtil(&cfg.Docker)
+	dockeru := dockeradapter.NewDockerAdapter(&cfg.Docker)
 	if err := dockeru.RunDockerPipeline(); err != nil {
 		slog.Error("failed to run docker container", slog.String("error", err.Error()))
 	}
