@@ -15,7 +15,7 @@ type ChatManager interface {
 	// AddChat adds chat id to chat manager.
 	AddChat(ctx context.Context, chatId int)
 	// NextChat set current index on the next chat id.
-	// It returns next chat id and time to wait before uploading next file.
+	// It returns current chat id and time to wait before uploading next file.
 	NextChat() (int, time.Duration)
 }
 
