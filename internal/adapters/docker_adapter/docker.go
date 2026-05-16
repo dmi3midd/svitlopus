@@ -1,4 +1,4 @@
-package dockerutil
+package dockeradapter
 
 import (
 	"fmt"

@@ -8,11 +8,11 @@ import (
 	"syscall"
 	"time"
 
+	dockeradapter "svitlopus/internal/adapters/docker_adapter"
 	"svitlopus/internal/api"
 	"svitlopus/internal/config"
 	"svitlopus/internal/database"
 	logger "svitlopus/internal/logger"
-	dockerutil "svitlopus/internal/utils/docker_util"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
@@ -57,7 +57,7 @@ func main() {
 	}
 	defer db.Close()
 
-	dockeru := dockerutil.NewDockerUtil(&cfg.Docker)
+	dockeru := dockeradapter.NewDockerUtil(&cfg.Docker)
 	if err := dockeru.RunDockerPipeline(); err != nil {
 		slog.Error("failed to run docker container", slog.String("error", err.Error()))
 	}
